@@ -1,9 +1,11 @@
+import { Type } from 'class-transformer';
 import {
-  IsArray,
   IsBooleanString,
   IsNotEmpty,
   IsString,
+  ValidateNested,
 } from 'class-validator';
+import { WorkerHistoryDto } from './history.dto';
 
 export class WorkerDto {
   @IsString()
@@ -28,6 +30,7 @@ export class WorkerDto {
   @IsString()
   img: string;
 
-  @IsArray()
-  workerHistory: object[];
+  @ValidateNested({ each: true })
+  @Type(() => WorkerHistoryDto)
+  workHistory: WorkerHistoryDto[];
 }

@@ -21,6 +21,7 @@ import * as fs from 'fs';
 import { AuthGuard } from 'src/Guard/auth.guard';
 import { WorkerDto } from './dto/worker.dto';
 import { diskStorage } from 'multer';
+import { WorkerHistoryDto } from './dto/history.dto';
 
 @Controller('workers')
 export class WorkerController {
@@ -52,6 +53,7 @@ export class WorkerController {
     @Body() dto: WorkerDto,
     @Req() req: RequestWidthUser,
   ) {
+    console.log(dto);
     if (!file) {
       throw new Error('File is required');
     }
@@ -104,7 +106,27 @@ export class WorkerController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   async deleteWorker(@Param('id') id: string) {
     return this.workerService.deleteWorker(id);
   }
+
+  //* work history add
+  @Post('workerhistory/:id')
+  @UseGuards(AuthGuard)
+  async createWorkerHistory(
+    @Param('id') id: string,
+    @Body() dto: WorkerHistoryDto,
+  ) {
+    return this.workerService.createWorkerHistory(id, dto);
+  }
+
+  // @Put('workerhistory/:id')
+  // @UseGuards(AuthGuard)
+  // async updateWorkerHistory(
+  //   @Param('id') id: string,
+  //   @Body() dto: WorkerHistoryDto,
+  // ) {
+  //   return this.workerService.updateWorkerHistory(id, dto);
+  // }
 }

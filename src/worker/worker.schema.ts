@@ -1,5 +1,6 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { Owner, OwnerSchema } from './owner.schema';
 
 export type WorkerDocument = HydratedDocument<Worker>;
 
@@ -22,6 +23,9 @@ export class Worker {
 
   @Prop()
   img: string;
+
+  @Prop({ type: [OwnerSchema] })
+  workHistory: Owner[];
 }
 
 export const WorkerSchema = SchemaFactory.createForClass(Worker);
