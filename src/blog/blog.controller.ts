@@ -27,6 +27,7 @@ export class BlogController {
   @Post()
   @UsePipes(ValidationPipe)
   async create(@Body() dto: BlogDto) {
+    console.log(dto);
     return this.blogService.create(dto);
   }
 

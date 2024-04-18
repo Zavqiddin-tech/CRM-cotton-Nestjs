@@ -11,17 +11,21 @@ import {
   UploadedFile,
   Param,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { WorkerService } from './worker.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RequestWidthUser } from 'src/types/type';
 import * as path from 'path';
 import * as fs from 'fs';
+import { diskStorage } from 'multer';
 
 import { AuthGuard } from 'src/Guard/auth.guard';
 import { WorkerDto } from './dto/worker.dto';
-import { diskStorage } from 'multer';
+import { CreateWorkerDto } from './dto/create-worker.dto';
 import { WorkerHistoryDto } from './dto/history.dto';
+import { PaidHistoryDto } from './dto/paid-history';
 
 @Controller('workers')
 export class WorkerController {
@@ -40,11 +44,12 @@ export class WorkerController {
   }
 
   @Post()
+  @UsePipes(ValidationPipe)
   @UseGuards(AuthGuard)
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: '../../uploads',
+        destination: 'uploads/',
       }),
     }),
   )
@@ -67,22 +72,27 @@ export class WorkerController {
     const writeStream = fs.createWriteStream(destination);
     readStream.pipe(writeStream);
 
-    return this.workerService.createWorker({ ...dto, img: newFileName }, req);
+    return this.workerService.createWorker({
+      ...dto,
+      img: newFileName,
+      user: req.userId,
+    });
   }
 
   @Put(':id')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: '../../uploads',
+        destination: 'uploads/',
       }),
     }),
   )
   async updateWorker(
     @UploadedFile() file: Express.Multer.File,
     @Param('id') id: string,
-    @Body() dto: WorkerDto,
+    @Body() dto: CreateWorkerDto,
   ) {
+    console.log('salom');
     if (file) {
       fs.unlink(`uploads/${dto.img}`, (err) => {
         if (err) {
@@ -98,6 +108,7 @@ export class WorkerController {
       const readStream = fs.createReadStream(file.path);
       const writeStream = fs.createWriteStream(destination);
       readStream.pipe(writeStream);
+      console.log(dto);
       return this.workerService.updateWorker({ ...dto, img: newFileName }, id);
     }
     if (!file) {
@@ -111,8 +122,18 @@ export class WorkerController {
     return this.workerService.deleteWorker(id);
   }
 
+  //* verify
+  @Put('worker-verify/:id')
+  @UseGuards(AuthGuard)
+  async changeVerify(
+    @Param('id') id: string,
+    @Body() dto: { verify: boolean },
+  ) {
+    return this.workerService.changeVerify(id, dto);
+  }
+
   //* work history add
-  @Post('workerhistory/:id')
+  @Post('work-history/:id')
   @UseGuards(AuthGuard)
   async createWorkerHistory(
     @Param('id') id: string,
@@ -121,12 +142,19 @@ export class WorkerController {
     return this.workerService.createWorkerHistory(id, dto);
   }
 
-  // @Put('workerhistory/:id')
-  // @UseGuards(AuthGuard)
-  // async updateWorkerHistory(
-  //   @Param('id') id: string,
-  //   @Body() dto: WorkerHistoryDto,
-  // ) {
-  //   return this.workerService.updateWorkerHistory(id, dto);
-  // }
+  //* work history update
+  @Put(':id/work-history/:workId')
+  @UseGuards(AuthGuard)
+  async updateWorkerHistory(
+    @Param('id') workerId: string,
+    @Param('workId') workHistoryId: string,
+    @Body() dto: WorkerHistoryDto,
+  ) {
+    return this.workerService.updateWorkerHistory(workerId, workHistoryId, dto);
+  }
+
+  @Put(':id/paid-history')
+  async paid(@Param('id') workerId: string, @Body() dto: PaidHistoryDto[]) {
+    return this.workerService.paid(workerId, dto);
+  }
 }

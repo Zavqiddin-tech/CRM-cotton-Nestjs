@@ -12,6 +12,4 @@ export class BlogDto {
   @IsNotEmpty()
   @IsString()
   description: string;
-
-  slug: string;
 }

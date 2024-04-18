@@ -7,7 +7,10 @@ export class Owner extends Document {
   kg: number;
 
   @Prop()
-  money: boolean;
+  paid: boolean;
+
+  @Prop()
+  status: number;
 
   @Prop()
   date: string;

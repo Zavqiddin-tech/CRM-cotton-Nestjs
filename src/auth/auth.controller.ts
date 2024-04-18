@@ -6,6 +6,8 @@ import {
   Post,
   Req,
   Res,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
@@ -21,6 +23,7 @@ export class AuthController {
     return this.authService.getAllUsers();
   }
   @HttpCode(201)
+  @UsePipes(ValidationPipe)
   @Post('regis')
   regis(@Body() dto: AuthDto) {
     return this.authService.regis(dto);

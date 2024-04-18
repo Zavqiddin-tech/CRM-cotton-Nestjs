@@ -8,9 +8,6 @@ import {
 import { WorkerHistoryDto } from './history.dto';
 
 export class WorkerDto {
-  @IsString()
-  user: string;
-
   @IsNotEmpty()
   @IsString()
   firstName: string;
@@ -26,9 +23,6 @@ export class WorkerDto {
   @IsNotEmpty()
   @IsBooleanString()
   verify: boolean;
-
-  @IsString()
-  img: string;
 
   @ValidateNested({ each: true })
   @Type(() => WorkerHistoryDto)

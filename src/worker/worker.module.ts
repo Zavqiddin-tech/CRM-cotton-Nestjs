@@ -11,7 +11,7 @@ import { MulterModule } from '@nestjs/platform-express';
   imports: [
     MongooseModule.forFeature([{ name: Worker.name, schema: WorkerSchema }]),
     MulterModule.register({
-      dest: './uploads',
+      dest: 'uploads/',
     }),
   ],
 })

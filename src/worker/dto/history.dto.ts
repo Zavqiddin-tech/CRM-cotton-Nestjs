@@ -7,7 +7,11 @@ export class WorkerHistoryDto {
 
   @IsNotEmpty()
   @IsBoolean()
-  money: boolean;
+  paid: boolean;
+
+  @IsNotEmpty()
+  @IsNumber()
+  status: number;
 
   @IsNotEmpty()
   @IsString()

@@ -18,7 +18,7 @@ const options = {
     JwtModule.register({
       global: true,
       secret: options.secret,
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '12h' },
     }),
     ConfigModule.forRoot(),
   ],
