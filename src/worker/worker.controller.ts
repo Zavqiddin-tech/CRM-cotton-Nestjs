@@ -46,19 +46,12 @@ export class WorkerController {
   @Post()
   @UsePipes(ValidationPipe)
   @UseGuards(AuthGuard)
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: 'uploads/',
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file', {}))
   async createWorker(
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: WorkerDto,
     @Req() req: RequestWidthUser,
   ) {
-    console.log(dto);
     if (!file) {
       throw new Error('File is required');
     }
@@ -66,7 +59,7 @@ export class WorkerController {
     // Fayl kengaytmasini aniqlash
     const fileExtension = path.extname(file.originalname);
     const newFileName = file.filename + fileExtension;
-    const destination = path.join('uploads', newFileName);
+    const destination = path.join('uploads/', newFileName);
 
     const readStream = fs.createReadStream(file.path);
     const writeStream = fs.createWriteStream(destination);
@@ -104,11 +97,7 @@ export class WorkerController {
       const fileExtension = path.extname(file.originalname);
       const newFileName = file.filename + fileExtension;
       const destination = path.join('uploads', newFileName);
-
-      const readStream = fs.createReadStream(file.path);
-      const writeStream = fs.createWriteStream(destination);
-      readStream.pipe(writeStream);
-      console.log(dto);
+      fs.renameSync(file.path, destination);
       return this.workerService.updateWorker({ ...dto, img: newFileName }, id);
     }
     if (!file) {
