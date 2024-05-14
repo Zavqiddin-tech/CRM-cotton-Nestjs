@@ -7,6 +7,7 @@ import { RequestWidthUser } from 'src/types/type';
 import { WorkerHistoryDto } from './dto/history.dto';
 import { CreateWorkerDto } from './dto/create-worker.dto';
 import { PaidHistoryDto } from './dto/paid-history';
+import * as fs from 'fs';
 @Injectable()
 export class WorkerService {
   workers: WorkerDto[];
@@ -28,11 +29,19 @@ export class WorkerService {
   }
 
   async updateWorker(dto: CreateWorkerDto, id: string) {
-    console.log(dto);
     return this.workerModel.findByIdAndUpdate(id, dto, { new: true });
   }
 
   async deleteWorker(id: string) {
+    const res = await this.workerModel.findById(id);
+    if (res.img) {
+      fs.unlink(`uploads/${res.img}`, (err) => {
+        if (err) {
+          throw new Error('Failed to delete file');
+        }
+        console.log('File deleted successfully');
+      });
+    }
     return this.workerModel.findByIdAndDelete(id);
   }
 

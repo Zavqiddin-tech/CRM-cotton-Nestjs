@@ -8,4 +8,5 @@ async function bootstrap() {
   app.use('/uploads', express.static('uploads'));
   await app.listen(3000);
 }
+
 bootstrap();

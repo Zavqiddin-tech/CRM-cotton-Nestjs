@@ -17,9 +17,7 @@ import {
 import { WorkerService } from './worker.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RequestWidthUser } from 'src/types/type';
-import * as path from 'path';
 import * as fs from 'fs';
-import { diskStorage } from 'multer';
 
 import { AuthGuard } from 'src/Guard/auth.guard';
 import { WorkerDto } from './dto/worker.dto';
@@ -52,40 +50,24 @@ export class WorkerController {
     @Body() dto: WorkerDto,
     @Req() req: RequestWidthUser,
   ) {
-    if (!file) {
-      throw new Error('File is required');
-    }
-
-    // Fayl kengaytmasini aniqlash
-    const fileExtension = path.extname(file.originalname);
-    const newFileName = file.filename + fileExtension;
-    const destination = path.join('uploads/', newFileName);
-
-    const readStream = fs.createReadStream(file.path);
-    const writeStream = fs.createWriteStream(destination);
-    readStream.pipe(writeStream);
+    // if (!file) {
+    //   throw new Error('File is required');
+    // }
 
     return this.workerService.createWorker({
       ...dto,
-      img: newFileName,
+      img: file ? file.filename : '',
       user: req.userId,
     });
   }
 
   @Put(':id')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: 'uploads/',
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file', {}))
   async updateWorker(
     @UploadedFile() file: Express.Multer.File,
     @Param('id') id: string,
     @Body() dto: CreateWorkerDto,
   ) {
-    console.log('salom');
     if (file) {
       fs.unlink(`uploads/${dto.img}`, (err) => {
         if (err) {
@@ -93,12 +75,11 @@ export class WorkerController {
         }
         console.log('File deleted successfully');
       });
-      // Fayl kengaytmasini aniqlash
-      const fileExtension = path.extname(file.originalname);
-      const newFileName = file.filename + fileExtension;
-      const destination = path.join('uploads', newFileName);
-      fs.renameSync(file.path, destination);
-      return this.workerService.updateWorker({ ...dto, img: newFileName }, id);
+
+      return this.workerService.updateWorker(
+        { ...dto, img: file.filename },
+        id,
+      );
     }
     if (!file) {
       return this.workerService.updateWorker({ ...dto }, id);
