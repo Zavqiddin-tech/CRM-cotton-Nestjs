@@ -23,7 +23,7 @@ export class AuthService {
   }
 
   async getOneFarmer(id: string) {
-    return await this.authModel.findById(id);
+    return await this.authModel.findById(id).select('-password');
   }
 
   async changeStatusFarmer(id: string) {
