@@ -7,7 +7,9 @@ import { RequestWidthUser } from 'src/types/type';
 import { WorkerHistoryDto } from './dto/history.dto';
 import { CreateWorkerDto } from './dto/create-worker.dto';
 import { PaidHistoryDto } from './dto/paid-history';
+import { CalendarDto } from './dto/calendar.dto';
 import * as fs from 'fs';
+
 @Injectable()
 export class WorkerService {
   workers: WorkerDto[];
@@ -22,6 +24,36 @@ export class WorkerService {
 
   async getById(id: string) {
     return this.workerModel.findById(id);
+  }
+
+  // Calendar works
+  async calendarWork(dto: CalendarDto, req: RequestWidthUser) {
+    const works = await this.workerModel.find({ user: { $eq: req.userId } });
+    const filteredWork: WorkerHistoryDto[] = [];
+    await works.forEach((work) => {
+      return work.workHistory.forEach((item) => {
+        if (
+          new Date(item.date).getDate() == dto.day &&
+          new Date(item.date).getMonth() + 1 == dto.month &&
+          new Date(item.date).getFullYear() == dto.year
+        ) {
+          filteredWork.push(item);
+        }
+      });
+    });
+    return filteredWork;
+  }
+
+  // All works
+  async getAllWorks(req: RequestWidthUser) {
+    const works = await this.workerModel.find({ user: { $eq: req.userId } });
+    const filteredWork: WorkerHistoryDto[] = [];
+    await works.forEach((work) => {
+      return work.workHistory.forEach((item) => {
+        filteredWork.push(item);
+      });
+    });
+    return filteredWork;
   }
 
   async createWorker(dto: CreateWorkerDto) {

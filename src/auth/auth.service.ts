@@ -37,7 +37,17 @@ export class AuthService {
   }
 
   async updateFarmer(id: string, dto: AuthDto) {
-    await this.authModel.findByIdAndUpdate(id, dto);
+    if (dto.password) {
+      const hash = await argon.hash(dto.password);
+      await this.authModel.findByIdAndUpdate(
+        id,
+        { ...dto, password: hash },
+        { new: true },
+      );
+      return await this.authModel.find({ session: { $eq: 'farmer' } });
+    }
+
+    await this.authModel.findByIdAndUpdate(id, { dto });
     return await this.authModel.find({ session: { $eq: 'farmer' } });
   }
 
@@ -73,7 +83,9 @@ export class AuthService {
   }
 
   async login(dto: AuthDto) {
+    console.log(dto);
     const user = await this.authModel.find({ email: { $eq: dto.email } });
+    console.log(user);
     if (user[0]) {
       if (user[0].session === 'admin') {
         const decode = await argon.verify(user[0].password, dto.password);
@@ -86,8 +98,11 @@ export class AuthService {
         const decode = await argon.verify(user[0].password, dto.password);
         if (decode && user[0].status == 1) {
           return this.generateToken(user[0].id, user[0].email);
-        } else {
+        }
+        if (decode && user[0].status == 0) {
           return { message: "kirish huquqi yo'q" };
+        } else {
+          return { message: 'Login yoki parol xato' };
         }
       }
     } else {

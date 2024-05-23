@@ -1,16 +1,16 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  Param,
   Post,
   Put,
-  Delete,
-  Body,
-  HttpCode,
   Req,
-  UseInterceptors,
   UploadedFile,
-  Param,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -24,6 +24,7 @@ import { WorkerDto } from './dto/worker.dto';
 import { CreateWorkerDto } from './dto/create-worker.dto';
 import { WorkerHistoryDto } from './dto/history.dto';
 import { PaidHistoryDto } from './dto/paid-history';
+import { CalendarDto } from './dto/calendar.dto';
 
 @Controller('workers')
 export class WorkerController {
@@ -36,9 +37,21 @@ export class WorkerController {
     return this.workerService.getAll(req);
   }
 
+  @Get('calendarDto')
+  @UseGuards(AuthGuard)
+  async getAllWorks(@Req() req: RequestWidthUser) {
+    return this.workerService.getAllWorks(req);
+  }
+
   @Get(':id')
   async getById(@Param('id') id: string) {
     return this.workerService.getById(id);
+  }
+
+  @Post('calendar-work')
+  @UseGuards(AuthGuard)
+  async calendarWork(@Body() dto: CalendarDto, @Req() req: RequestWidthUser) {
+    return this.workerService.calendarWork(dto, req);
   }
 
   @Post()
