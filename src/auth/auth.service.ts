@@ -57,7 +57,6 @@ export class AuthService {
 
   // Authorization
   async regis(dto: AuthDto) {
-    console.log(dto);
     const admin = await this.authModel.find({ session: { $eq: dto.session } });
     if (admin[0] && admin[0].session === 'admin') {
       return { message: 'mumkin emas' };
@@ -83,9 +82,7 @@ export class AuthService {
   }
 
   async login(dto: AuthDto) {
-    console.log(dto);
     const user = await this.authModel.find({ email: { $eq: dto.email } });
-    console.log(user);
     if (user[0]) {
       if (user[0].session === 'admin') {
         const decode = await argon.verify(user[0].password, dto.password);
@@ -138,7 +135,6 @@ export class AuthService {
       const decode = await this.jwt.verify(token.substring(7), options);
       const admin = await this.authModel.findById(decode.sub);
       if (admin.session === 'admin') {
-        console.log('this is admin');
       } else {
         res.status(401).json({ message: 'sizga ruxsat berilmaydi' });
       }

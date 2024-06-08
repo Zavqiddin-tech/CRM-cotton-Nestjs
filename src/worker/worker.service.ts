@@ -86,7 +86,6 @@ export class WorkerService {
   }
 
   async createWorkerHistory(id: string, dto: WorkerHistoryDto) {
-    console.log(id, dto);
     await this.workerModel.updateOne(
       { _id: id },
       {
